@@ -28,6 +28,7 @@ import org.jddd.core.annotation.AggregateRoot;
 import org.jddd.core.annotation.Entity;
 import org.jddd.core.annotation.Repository;
 import org.moduliths.model.Types.JDDDTypes;
+import org.moduliths.model.Types.MoleculesTypes;
 import org.moduliths.model.Types.SpringDataTypes;
 import org.moduliths.model.Types.SpringTypes;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -62,6 +63,10 @@ public interface ArchitecturallyEvidentType {
 
 		if (JDDDTypes.isPresent()) {
 			delegates.add(new JDdddArchitecturallyEvidentType(type));
+		}
+
+		if (MoleculesTypes.isPresent()) {
+			delegates.add(new MoleculesArchitecturallyEvidentType(type));
 		}
 
 		if (SpringDataTypes.isPresent()) {
@@ -215,6 +220,43 @@ public interface ArchitecturallyEvidentType {
 		@Override
 		public boolean isRepository() {
 			return Types.isAnnotatedWith(Repository.class).apply(type);
+		}
+	}
+
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	static class MoleculesArchitecturallyEvidentType implements ArchitecturallyEvidentType {
+
+		private final @Getter JavaClass type;
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.moduliths.model.ArchitecturallyEvidentType#isEntity()
+		 */
+		@Override
+		public boolean isEntity() {
+
+			return Types.isAnnotatedWith(org.jmolecules.ddd.annotation.Entity.class).apply(type) || //
+					type.isAssignableTo(org.jmolecules.ddd.types.Entity.class);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.moduliths.model.ArchitecturallyEvidentType#isAggregateRoot()
+		 */
+		@Override
+		public boolean isAggregateRoot() {
+
+			return Types.isAnnotatedWith(org.jmolecules.ddd.annotation.AggregateRoot.class).apply(type) || //
+					type.isAssignableTo(org.jmolecules.ddd.types.AggregateRoot.class);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.moduliths.model.ArchitecturallyEvidentType#isRepository()
+		 */
+		@Override
+		public boolean isRepository() {
+			return Types.isAnnotatedWith(org.jmolecules.ddd.annotation.Repository.class).apply(type);
 		}
 	}
 
